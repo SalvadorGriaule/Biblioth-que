@@ -24,7 +24,7 @@ if (isset($_POST['submit']) && !empty(($_POST['submit']))) {
         }
         $script .= '</script>';
     } else {
-        $sign = $pdo->prepare('SELECT Email, password FROM employes WHERE Email = :mail', [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
+        $sign = $pdo->prepare('SELECT id,Email, password FROM employes WHERE Email = :mail', [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
         $sign->execute([
             "mail" => $_POST["mail"],
         ]);
@@ -32,6 +32,10 @@ if (isset($_POST['submit']) && !empty(($_POST['submit']))) {
         $dataCon = $sign->fetchAll();
         if (password_verify($_POST["password"], $dataCon[0]["password"])) {
             session_start();
+
+            $_SESSION["mail"] = $_POST["mail"];
+            $_SESSION["id"] = $dataCon[0]["id"];
+
             echo '<script>
             window.location.replace("http://localhost/Biblothéque/index.php");
             </script>';

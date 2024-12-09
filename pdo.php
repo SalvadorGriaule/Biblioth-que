@@ -17,13 +17,13 @@ $sth .= '</tr>';
 for ($i = 0, $size = count($result); $i < $size; ++$i) {
     $str .= '<tr>';
     for ($j = 1; $j < 10; ++$j) {
-        $str .= '<td class="mr-2"><a href="./modif.php?id_employer=' . $result[$i][0] . '">' . $result[$i][$j] . "</a></td>";
+        $str .= '<td class="mr-2"><a href="./profile?id_employer==' . $result[$i][0] . '">' . $result[$i][$j] . "</a></td>";
     }
     $str .= '<td class="mr-2"></a><a href="./supp.php?id_employer=' . $result[$i][0] . '">Supprimer</a></td></tr>';
 }
 
 $str .= '</table>"';
-
+ 
 ?>
 <main class="bg-orange-200 pb-1">
     <nav>

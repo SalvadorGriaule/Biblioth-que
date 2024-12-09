@@ -17,7 +17,10 @@ function valideDate($date, $format = 'd/m/Y')
     }
 }
 
+
 if (isset($_POST['submit']) && !empty(($_POST['submit']))) {
+    $img = $_FILES["image"];
+
     if (empty($_POST['name_user']) || empty($_POST['surname']) || empty($_POST['password']) || empty($_POST['mail']) || empty($_POST['confirm_password']) || empty($_POST['service']) || empty($_POST['salaire'])  || empty($_POST["sexe"])) {
         $script = '<script>';
         if (empty($_POST['name_user'])) {
@@ -59,7 +62,7 @@ if (isset($_POST['submit']) && !empty(($_POST['submit']))) {
         if (empty($_POST['sexe'])) {
             $genreErr = '<p class="mt-1">Champ obligatoire </p>';
             $script .= 'const genre = document.getElementById("genre");
-            genre.classList.add("outline","outline-[rgb(220,38,38)]","outline-offset-2","outline-[3px]");';
+            genre.classList.add("border-[rgb(220,38,38)]");';
         }
 
         if (empty($_POST['confirm_password'])) {
@@ -77,6 +80,8 @@ if (isset($_POST['submit']) && !empty(($_POST['submit']))) {
         $pwdWeak = '<p>Mots de passe ne contient pas au moins un !?#$*% </p>';
     } elseif (preg_match('/^[0-9]{10,10}$/', $_POST['num']) == 0) {
         $numErr = '<p class="mt-1">Numéro invalid</p>';
+    } elseif (!empty($img) && !str_contains($img["type"], "image")) {
+        $pwdWeak = "ce n'est pas une image";
     } elseif (strcmp($_POST["confirm_password"], $_POST["password"]) != 0) {
         $pwdWeak = '<p>Les 2 mot de pass sont différent</p>';
     } elseif (valideDate($_POST["date"])) {
@@ -116,21 +121,37 @@ if (isset($_POST['submit']) && !empty(($_POST['submit']))) {
         } elseif (!$thirdBool) {
             $pwdWeak = '<p>Mots de passe ne contient pas de minuscule</p>';
         } else {
-            $hash = password_hash($_POST['password'],PASSWORD_DEFAULT);
-            $insert = "INSERT INTO employes(prenom, nom, sexe,service, date_embauche, salaire, Email, password, numero)
-            VALUES ( :surname , :name_user , :sexe , :service, :date , :salaire , :mail , :password , :num )";
-            $pre = $pdo->prepare($insert, [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
-            $pre -> execute([
-                'surname' => $_POST["surname"],
-                'name_user' => $_POST["name_user"],
-                'sexe' => $_POST["sexe"],
-                'service' => $_POST['service'],
-                'date' => $_POST['date'],
-                'salaire' => $_POST['salaire'],
-                'mail' => $_POST['mail'],
-                'password' => $hash,
-                'num' => $_POST['num'],
+            $searchEmail = "SELECT Email FROM employes WHERE Email = :mail";
+            $pre = $pdo->prepare($searchEmail, [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
+            $pre->execute([
+                "mail" => $_POST["mail"]
             ]);
+            $dataDB = $pre->fetchAll();
+            if (empty($dataDB)) {
+                $path = "upload/" . $img["name"];
+                if(!file_exists("upload")){
+                    mkdir("upload");
+                }
+                move_uploaded_file($img["tmp_name"],$path);
+                $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                $insert = "INSERT INTO employes(prenom, nom, sexe,service, date_embauche, salaire, Email, password, numero, image)
+                VALUES ( :surname , :name_user , :sexe , :service, :date , :salaire , :mail , :password , :num , :img)";
+                $pre = $pdo->prepare($insert, [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
+                $pre->execute([
+                    'surname' => $_POST["surname"],
+                    'name_user' => $_POST["name_user"],
+                    'sexe' => $_POST["sexe"],
+                    'service' => $_POST['service'],
+                    'date' => $_POST['date'],
+                    'salaire' => $_POST['salaire'],
+                    'mail' => $_POST['mail'],
+                    'password' => $hash,
+                    'num' => $_POST['num'],
+                    'img' => $path
+                ]);
+            } else {
+                $pwdWeak = "Email déja prit";
+            }
         }
     }
 }
@@ -148,28 +169,29 @@ if ($pwdWeak != "") {
     <section class="w-full flex justify-center">
         <div class="bg-[url(../img/VieuxPapier.jpg)] bg-center my-3 p-2 w-3/4 flex flex-col place-content-center">
             <h2 class="text-xl text-center">Inscription</h2>
-            <form class="flex flex-col space-y-2 w-full p-2" action="ajoutEmp.php" method="POST">
+            <form class="flex flex-col space-y-2 w-full p-2" action="ajoutEmp.php" method="POST" enctype="multipart/form-data">
                 <span id="weakDiv" class="hidden text-red-700 bg-amber-400 p-1 rounded-md">
                     <?php echo $pwdWeak; ?>
                 </span>
                 <input id="surnameUser" class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" type="text" name="surname" placeholder="prenom" value="<?php echo @$_POST["surname"] ?>">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $surnameErr; ?>
                 </span>
+                <input type="file" name="image" accept="image/*" id="image">
                 <input id="nameUser" class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" type="text" name="name_user" placeholder="nom" value="<?php echo @$_POST["name_user"] ?>">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $nameErr; ?>
                 </span>
                 <input id="service" class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" type="text" name="service" placeholder="profession" value="<?php echo @$_POST["service"] ?>">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $serviceErr; ?>
                 </span>
                 <input id="salaire" class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" type="number" name="salaire" placeholder="salaire" value="<?php echo @$_POST["salaire"] ?>">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $salaireErr; ?>
                 </span>
                 <input id="mail" class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" type="email" name="mail" placeholder="email" value="<?php echo @$_POST["mail"] ?>">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $mailErr; ?>
                 </span>
                 <fieldset id="genre" class="border-2 bg-orange-300 p-1">
@@ -177,22 +199,24 @@ if ($pwdWeak != "") {
                     <input type="radio" name="sexe" id="" value="m"><label for="">homme</label>
                     <input type="radio" name="sexe" id="" value="f"><label for="">femme</label>
                 </fieldset>
-                <?php echo $genreErr; ?>
+                <span class="text-red-600 text-center">
+                    <?php echo $genreErr; ?>
+                </span>
                 <input class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" type="date" name="date">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $dateErr; ?>
                 </span>
                 <input type="tel" class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" placeholder="numéro tél" name="num" value="<?php echo @$_POST["num"] ?>">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $numErr; ?>
                 </span>
                 <input id="password" class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" name="password" type="password" placeholder="password">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $pwdErr; ?>
                 </span>
                 <input id="confWord" class="border-2 placeholder:text-zinc-500 border-zinc-500 bg-orange-300 p-1" name="confirm_password" type="password" placeholder="confirm password">
                 <input type="submit" name="submit" class="p-1 rounded-md cursor-pointer bg-orange-300 text-amber-900 disabled:text-black disabled:bg-slate-400 disabled:cursor-default" value="Envoyer">
-                <span class="text-red-600">
+                <span class="text-red-600 text-center">
                     <?php echo $confErr; ?>
                 </span>
             </form>

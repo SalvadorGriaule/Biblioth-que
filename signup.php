@@ -1,5 +1,7 @@
 <?php
 
+require "db.php";
+
 $surnameErr = $numErr = $dateErr = $nameErr = $pwdErr = $mailErr = $pwdWeak = $confErr = $script = "";
 $firstBool = $secondBool = $thirdBool = false;
 $strPwd = true;
@@ -55,7 +57,7 @@ if (isset($_POST['submit']) && !empty(($_POST['submit']))) {
         $pwdWeak = '<p>Mots de passe trop court </p>';
     } elseif (strstr($_POST['password'], chr(33)) == false && strstr($_POST['password'], chr(35)) == false && strstr($_POST['password'], chr(36)) == false && strstr($_POST['password'], chr(42)) == false && strstr($_POST['password'], chr(37)) == false && strstr($_POST['password'], chr(63)) == false) {
         $pwdWeak = '<p>Mots de passe ne contient pas au moins un !?#$*% </p>';
-    } elseif (preg_match('/^[0-9]{5,5}$/', $_POST['num']) == 0) {
+    } elseif (preg_match('/^[0-9]{10,10}$/', $_POST['num']) == 0) {
         $numErr = '<p class="mt-1">Numéro invalid</p>';
     } elseif (strcmp($_POST["confirm_password"], $_POST["password"]) != 0) {
         $pwdWeak = '<p>Les 2 mot de pass sont différent</p>';
@@ -114,7 +116,7 @@ if ($pwdWeak != "") {
     <section class="w-full flex justify-center">
         <div class="bg-[url(../img/VieuxPapier.jpg)] bg-center my-3 p-2 w-3/4 flex flex-col place-content-center">
             <h2 class="text-xl text-center">Inscription</h2>
-            <form class="flex flex-col space-y-2 w-full p-2" action="connect.php" method="POST">
+            <form class="flex flex-col space-y-2 w-full p-2" action="" method="POST">
                 <span id="weakDiv" class="hidden text-red-700 bg-amber-400 p-1 rounded-md">
                     <?php echo $pwdWeak; ?>
                 </span>
