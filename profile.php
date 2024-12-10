@@ -6,10 +6,10 @@ require "db.php";
 parse_str($_SERVER['QUERY_STRING'], $output);
 $id = (int)$output["id_employer"];
 
-$searchEmail = "SELECT id,prenom,nom,sexe,service,Email,numero,image  FROM employes WHERE id = :id";
+$searchEmail = "SELECT id_employes,prenom,nom,sexe,service,Email,numero,image  FROM employes WHERE id_employes = :id";
 $pre = $pdo->prepare($searchEmail, [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
 $pre->execute([
-    "id" => $_SESSION["id"]
+    "id" => $id
 ]);
 $dataDB = $pre->fetchAll();
 $profileData = $dataDB[0];
@@ -30,8 +30,8 @@ for ($i = 0; $i < 15; ++$i) {
         </ul>
     </nav>
     <section class="w-full flex justify-center">
-        <div class="bg-[url(../img/VieuxPapier.jpg)] bg-center my-3 p-2 w-3/4 flex place-content-center">
-            <div class="<?php is_null($profileData["image"]) ? "flex place-content-center" : "w-1/2" ?>">
+        <div class="bg-[url(../img/VieuxPapier.jpg)] bg-center my-3 p-2 w-3/4 flex justify-around  items-center">
+            <div class="<?php echo is_null($profileData["image"]) ?  "flex place-content-center" : "w-1/2" ?>">
                 <?php if (!is_null($profileData["image"])): ?>
                     <img src="<?php echo $profileData["image"] ?>" alt="">
                 <?php else: ?>

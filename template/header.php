@@ -18,9 +18,9 @@ session_start();
         <nav>
             <ul id="menu" class="flex space-x-2">
                 <?php if (!empty($_SESSION["mail"])): ?>
-                    <li><a class="text-amber-900" href="./profile?id_employer=<?php $_SESSION["id"] ?>">profile</a></li>
+                    <li><a class="text-amber-900" href="./profile?id_employer=<?php echo $_SESSION["id"] ?>">profile</a></li>
                     <li><a class="text-amber-900" href="./deconnect.php">Déconnection</a></li>
-                    <li><a class="text-amber-900" href="./pdo.php">Base</a></li>
+                    <li><a class="text-amber-900" href="./pdo.php" >Base</a></li>
                     <?php else: ?>
                     <li><a class="text-amber-900" href="./signup.php">Inscription</a></li>
                     <li><a class="text-amber-900" href="./connect.php">Connection</a></li>

@@ -196,13 +196,13 @@ if ($pwdWeak != "") {
                 </span>
                 <fieldset id="genre" class="border-2 bg-orange-300 p-1">
                     <legend>votre genre</legend>
-                    <input type="radio" name="sexe" id="" value="m"><label for="">homme</label>
-                    <input type="radio" name="sexe" id="" value="f"><label for="">femme</label>
+                    <input type="radio" name="sexe" id="" value="m" <?php if($_POST["sexe"] == "m") echo "checked" ?>><label for="">homme</label>
+                    <input type="radio" name="sexe" id="" value="f" <?php if($_POST["sexe"] == "f") echo "checked" ?>><label for="">femme</label>
                 </fieldset>
                 <span class="text-red-600 text-center">
                     <?php echo $genreErr; ?>
                 </span>
-                <input class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" type="date" name="date">
+                <input class="border-2 placeholder:text-zinc-600 border-zinc-500 bg-orange-300 p-1" type="date" name="date" value="<?php echo @$_POST["date"] ?>">
                 <span class="text-red-600 text-center">
                     <?php echo $dateErr; ?>
                 </span>
